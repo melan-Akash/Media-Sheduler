@@ -1,6 +1,6 @@
 import express from 'express';
-import { getAccounts, addAccount, disconnectAccount } from '../controllers/accountControllers';
-import { protect } from '../middlewares/authMiddleware';
+import { getAccounts, addAccount, disconnectAccount } from '../controllers/accountControllers.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const accountRouter = express.Router();
 

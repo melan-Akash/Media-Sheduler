@@ -3,15 +3,15 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 
 // Import configurations and services
-import connectDB from './config/db';
-import { initScheduler } from './services/schedulerService';
+import connectDB from './config/db.js';
+import { initScheduler } from './services/schedulerService.js';
 
 // Import routers
-import authRouter from './routes/authRoutes';
-import socialAuthRouter from './routes/socialAuthRoutes';
-import accountRouter from './routes/accountRoutes';
-import postRouter from './routes/postRoutes';
-import activityRouter from './routes/activityRoutes';
+import authRouter from './routes/authRoutes.js';
+import socialAuthRouter from './routes/socialAuthRoutes.js';
+import accountRouter from './routes/accountRoutes.js';
+import postRouter from './routes/postRoutes.js';
+import activityRouter from './routes/activityRoutes.js';
 
 const app = express();
 

@@ -1,8 +1,8 @@
 import cron from 'node-cron';
-import { Post } from '../models/post';
-import { Account } from '../models/account';
-import { ActivityLog } from '../models/activityLog';
-import zero from '../config/zuo';
+import { Post } from '../models/post.js';
+import { Account } from '../models/account.js';
+import { ActivityLog } from '../models/activityLog.js';
+import zero from '../config/zuo.js';
 
 export const initScheduler = () => {
   // Run the background job every minute using 5 stars

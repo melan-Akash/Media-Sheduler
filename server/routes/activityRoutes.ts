@@ -1,6 +1,6 @@
 import express from 'express';
-import { getActivity } from '../controllers/activityController';
-import { protect } from '../middlewares/authMiddleware';
+import { getActivity } from '../controllers/activityController.js';
+import { protect } from '../middlewares/authMiddleware.js';
 
 const activityRouter = express.Router();
 
