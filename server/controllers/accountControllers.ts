@@ -1,7 +1,7 @@
 import { Response } from 'express';
-import { AuthRequest } from '../middlewares/authMiddleware';
-import { Account } from '../models/account';
-import zero from '../config/zuo';
+import { AuthRequest } from '../middlewares/authMiddleware.js';
+import { Account } from '../models/account.js';
+import zero from '../config/zuo.js';
 
 // GET /api/accounts
 export const getAccounts = async (req: AuthRequest, res: Response): Promise<void> => {

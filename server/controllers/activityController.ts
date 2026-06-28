@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { AuthRequest } from '../middlewares/authMiddleware';
-import { ActivityLog } from '../models/activityLog';
+import { AuthRequest } from '../middlewares/authMiddleware.js';
+import { ActivityLog } from '../models/activityLog.js';
 
 // GET /api/activity
 export const getActivity = async (req: AuthRequest, res: Response): Promise<void> => {
