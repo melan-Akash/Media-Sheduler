@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/authMiddleware.js';
-import { GoogleGenAI } from '@google/genai';
+import { OpenRouter } from '@openrouter/sdk';
 import axios from 'axios';
 import cloudinary from '../config/cloudinary.js';
 import { Generation } from '../models/generation.js';
@@ -47,33 +47,40 @@ const pollLeonardoJob = async (generationId: string, apiKey: string): Promise<st
 export const generatePost = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { prompt, tone, generateImage } = req.body;
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
-      res.status(400).json({ message: 'Gemini API key is missing. Please add it to your server env file' });
+      res.status(400).json({ message: 'OpenRouter API key is missing. Please add it to your server env file' });
       return;
     }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const openrouter = new OpenRouter({ apiKey });
 
     // Generate Text
-    const textResponse = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: `generate a social media post based on this prompt: "${prompt}". tone: ${tone}. include relevant hashtags. format the response as JSON with content and imagePrompt fields. the imagePrompt should be a highly descriptive prompt for an image generator that complements the post.`
+    const textResponse = await openrouter.chat.send({
+      chatRequest: {
+        model: 'openrouter/owl-alpha',
+        messages: [
+          {
+            role: 'user',
+            content: `generate a social media post based on this prompt: "${prompt}". tone: ${tone}. include relevant hashtags. format the response as JSON with content and imagePrompt fields. the imagePrompt should be a highly descriptive prompt for an image generator that complements the post.`
+          }
+        ]
+      }
     });
 
     let content = '';
     let imagePrompt = prompt;
 
     try {
-      const rawText = textResponse.text || '';
+      const rawText = (textResponse as any).choices?.[0]?.message?.content || '';
       const jsonMatch = rawText.match(/```json\s*([\s\S]*?)```/);
       const data = jsonMatch ? JSON.parse(jsonMatch[1]!) : { content: rawText, imagePrompt: prompt || '' };
       
       content = data.content;
       imagePrompt = data.imagePrompt;
     } catch (e) {
-      content = textResponse.text || '';
+      content = textResponse.choices[0]?.message?.content || '';
     }
 
     let mediaUrl = '';
