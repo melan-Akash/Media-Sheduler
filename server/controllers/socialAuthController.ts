@@ -3,6 +3,7 @@ import { AuthRequest } from '../middlewares/authMiddleware.js';
 import zero from '../config/zuo.js';
 import { User } from '../models/user.js';
 import { Account } from '../models/account.js';
+import { sendAccountConnectedEmail } from '../services/emailService.js';
 
 // Helper to ensure user has a ZIO profile
 const getOrCreateZeroProfile = async (user: any): Promise<string> => {
@@ -98,6 +99,8 @@ export const syncAccounts = async (req: AuthRequest, res: Response): Promise<voi
         continue;
       }
 
+      const existingAccount = await Account.findOne({ zeroAccountId: zId });
+
       const account = await Account.findOneAndUpdate(
         { zeroAccountId: zId },
         {
@@ -110,6 +113,14 @@ export const syncAccounts = async (req: AuthRequest, res: Response): Promise<voi
         },
         { upsert: true, returnDocument: 'after' }
       );
+
+      // Send email if it is a new account or was previously disconnected
+      if (!existingAccount || existingAccount.status !== 'connected') {
+        sendAccountConnectedEmail(req.user.email, req.user.name, {
+          name: account.handle,
+          platform: account.platform
+        }).catch(err => console.error('Failed to send account connection email', err));
+      }
 
       syncedAccounts.push(account);
     }

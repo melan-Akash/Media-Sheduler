@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.js';
+import { sendWelcomeEmail } from '../services/emailService.js';
 
 // Helper function to generate JWT
 const generateToken = (id: string) => {
@@ -31,6 +32,9 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     });
 
     if (user) {
+      // Send Welcome Email in background
+      sendWelcomeEmail(user.email, user.name).catch(err => console.error('Failed to send welcome email', err));
+
       res.status(201).json({
         _id: user.id,
         name: user.name,

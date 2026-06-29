@@ -5,6 +5,7 @@ import axios from 'axios';
 import cloudinary from '../config/cloudinary.js';
 import { Generation } from '../models/generation.js';
 import { Post } from '../models/post.js';
+import { sendPostScheduledEmail } from '../services/emailService.js';
 
 
 // POST /api/posts/generate
@@ -186,12 +187,22 @@ export const schedulePost = async (req: AuthRequest, res: Response): Promise<voi
     const post = await Post.create({
       user: req.user.id,
       content,
-      platforms: mappedPlatforms,
+      platforms: mappedPlatforms as any,
       mediaUrl,
       mediaType,
       scheduledFor,
       status
     });
+
+    // Send email in background if the post was scheduled
+    if ((post as any).status === 'scheduled') {
+      sendPostScheduledEmail(req.user.email, req.user.name, {
+        content: (post as any).content,
+        platforms: (post as any).platforms,
+        scheduledFor: (post as any).scheduledFor.toISOString(),
+        mediaUrl: (post as any).mediaUrl || undefined
+      }).catch(err => console.error('Failed to send post scheduled email', err));
+    }
 
     res.status(201).json(post);
   } catch (error: any) {

@@ -2,7 +2,9 @@ import cron from 'node-cron';
 import { Post } from '../models/post.js';
 import { Account } from '../models/account.js';
 import { ActivityLog } from '../models/activityLog.js';
+import { User } from '../models/user.js';
 import zero from '../config/zuo.js';
+import { sendPostPublishedEmail } from './emailService.js';
 
 export const initScheduler = () => {
   // Run the background job every minute using 5 stars
@@ -76,6 +78,16 @@ export const initScheduler = () => {
             description: 'Published post to accounts',
             relatedPost: post.id
           });
+
+          // Fetch user to send publication email
+          const userDoc = await User.findById(post.user);
+          if (userDoc) {
+            sendPostPublishedEmail(userDoc.email, userDoc.name, {
+              content: post.content,
+              platforms: post.platforms,
+              mediaUrl: post.mediaUrl || undefined
+            }).catch(err => console.error('Failed to send post published email', err));
+          }
 
         } catch (error: any) {
           console.error(`Failed to publish post ${post.id}`, error);
