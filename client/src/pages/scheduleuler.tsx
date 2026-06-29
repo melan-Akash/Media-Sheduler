@@ -3,7 +3,7 @@ import { platforms } from '../assets/assets';
 import { 
   CalendarDaysIcon, ClockIcon, XIcon, ArrowRightIcon, Loader2Icon, SendIcon, Trash2Icon,
   CloudUploadIcon, HeartIcon, MessageCircleIcon, Share2Icon, BookmarkIcon, ThumbsUpIcon, 
-  GlobeIcon, MoreHorizontalIcon 
+  GlobeIcon, MoreHorizontalIcon, ListIcon, CalendarIcon 
 } from 'lucide-react';
 import { useApp } from '../context/appcontext';
 import { toast } from 'react-hot-toast';
@@ -18,7 +18,27 @@ export default function Scheduler() {
   const [loading, setLoading] = useState(false);
   const [previewPlatform, setPreviewPlatform] = useState<'twitter' | 'facebook' | 'instagram'>('twitter');
   const [isDragging, setIsDragging] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('list');
   const { api } = useApp();
+
+  const getNext7Days = () => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date();
+      d.setDate(d.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  };
+
+  const getPostsForDay = (date: Date) => {
+    return scheduled.filter(post => {
+      const postDate = new Date(post.scheduledFor);
+      return postDate.getDate() === date.getDate() &&
+             postDate.getMonth() === date.getMonth() &&
+             postDate.getFullYear() === date.getFullYear();
+    });
+  };
 
   const getCharacterLimit = () => {
     if (selectedPlatforms.includes('twitter')) return 280;
@@ -377,16 +397,37 @@ export default function Scheduler() {
 
         {/* Upcoming Posts */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6">
-           <div className="flex items-center justify-between mb-5">
+           <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
               <div className="flex items-center gap-2 text-slate-800 font-semibold">
                 <CalendarDaysIcon className="size-5 text-slate-500" />
                 <h3 className="text-sm font-bold">Upcoming</h3>
+                <span className="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{scheduled.length}</span>
               </div>
-              <span className="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full">{scheduled.length}</span>
+              
+              {/* View Toggle */}
+              <div className="flex bg-slate-50 p-0.5 rounded-lg border border-slate-200">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'list' ? 'bg-white text-red-500 shadow-xs' : 'text-slate-400 hover:text-slate-650'}`}
+                  title="List View"
+                >
+                  <ListIcon className="size-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('calendar')}
+                  className={`p-1.5 rounded-md transition-all cursor-pointer ${viewMode === 'calendar' ? 'bg-white text-red-500 shadow-xs' : 'text-slate-400 hover:text-slate-650'}`}
+                  title="Calendar Grid View"
+                >
+                  <CalendarIcon className="size-4" />
+                </button>
+              </div>
            </div>
+
            {scheduled.length === 0 ? (
              <div className="text-sm text-slate-400 py-4 text-center">No posts scheduled yet</div>
-           ) : (
+           ) : viewMode === 'list' ? (
              <div className="divide-y divide-slate-100">
                {scheduled.map(post => (
                   <div key={post._id} className="flex gap-4 py-4 first:pt-0 last:pb-0">
@@ -419,6 +460,74 @@ export default function Scheduler() {
                     </div>
                   </div>
                ))}
+             </div>
+           ) : (
+             /* Calendar View - 7 Day Grid */
+             <div className="grid grid-cols-1 md:grid-cols-7 gap-3 border border-slate-100 rounded-xl overflow-hidden bg-slate-50/20 p-2">
+               {getNext7Days().map((day, i) => {
+                 const dayPosts = getPostsForDay(day);
+                 const isToday = i === 0;
+                 return (
+                   <div key={i} className={`flex flex-col min-w-0 bg-white border rounded-xl p-2.5 min-h-[180px] transition-all ${isToday ? 'border-red-200 ring-1 ring-red-100/50' : 'border-slate-100'}`}>
+                     {/* Day Header */}
+                     <div className="text-center pb-2 border-b border-slate-100/60 mb-2 shrink-0">
+                       <span className={`text-[10px] font-bold tracking-wider block ${isToday ? 'text-red-500' : 'text-slate-400'}`}>
+                         {day.toLocaleDateString('en-US', { weekday: 'short' })}
+                       </span>
+                       <span className={`inline-flex items-center justify-center size-5 text-xs font-bold rounded-full ${isToday ? 'bg-red-500 text-white' : 'text-slate-700'}`}>
+                         {day.getDate()}
+                       </span>
+                     </div>
+                     
+                     {/* Day Posts */}
+                     <div className="flex-1 overflow-y-auto space-y-2 max-h-[250px] scrollbar-none">
+                       {dayPosts.length === 0 ? (
+                         <span className="text-[10px] text-slate-300 text-center block pt-4">No posts</span>
+                       ) : (
+                         dayPosts.map(post => (
+                           <div key={post._id} className="bg-slate-55 hover:bg-slate-100/70 border border-slate-100/50 rounded-lg p-2 space-y-1.5 relative group transition-all">
+                             <div className="flex items-center justify-between gap-1.5">
+                               {/* Platform & Time */}
+                               <div className="flex items-center gap-1 min-w-0">
+                                 {(() => {
+                                   const platformId = post.platforms[0];
+                                   const meta = platforms.find(p => p.id === platformId);
+                                   return meta ? <meta.icon className="size-3 text-slate-500 shrink-0" /> : null;
+                                 })()}
+                                 <span className="text-[9px] font-bold text-slate-500 truncate">
+                                   {new Date(post.scheduledFor).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                                 </span>
+                               </div>
+                               
+                               {/* Delete Button */}
+                               <button
+                                 type="button"
+                                 onClick={() => handleDeletePost(post._id)}
+                                 className="opacity-0 group-hover:opacity-100 p-0.5 text-slate-400 hover:text-red-500 rounded transition-all cursor-pointer shrink-0"
+                                 title="Delete"
+                               >
+                                 <Trash2Icon className="size-3" />
+                               </button>
+                             </div>
+                             
+                             {/* Content Snippet */}
+                             <p className="text-[10px] text-slate-600 font-medium line-clamp-2 leading-tight break-words">
+                               {post.content}
+                             </p>
+                             
+                             {/* Thumbnail */}
+                             {post.mediaUrl && (
+                               <div className="relative rounded overflow-hidden aspect-video bg-slate-200 max-h-12 border border-slate-100 flex items-center justify-center shrink-0">
+                                 <img src={post.mediaUrl} alt="thumbnail" className="w-full h-full object-cover" />
+                               </div>
+                             )}
+                           </div>
+                         ))
+                       )}
+                     </div>
+                   </div>
+                 );
+               })}
              </div>
            )}
         </div>
