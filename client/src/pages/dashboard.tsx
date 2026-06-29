@@ -301,14 +301,15 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-3">
                 {accounts.map(acc => {
-                  const platformMeta = platforms.find(p => p.id === acc.platform.toLowerCase().replace(/\s+page|\s+business/g, ''));
+                  const platformName = acc.platform ? acc.platform.toLowerCase().replace(/\s+page|\s+business/g, '') : '';
+                  const platformMeta = platforms.find(p => p.id === platformName);
                   return (
                     <div key={acc._id} className="flex items-center justify-between p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-xl transition-all">
                       <div className="flex items-center gap-3 min-w-0">
                         {/* Avatar / Placeholder */}
                         <div className="relative">
                           <div className="size-9 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                            {acc.name.charAt(0).toUpperCase()}
+                            {(acc.name || 'Account').charAt(0).toUpperCase()}
                           </div>
                           {/* Pulsing Active Dot */}
                           <span className="absolute bottom-0 right-0 flex h-2.5 w-2.5">
@@ -317,10 +318,10 @@ export default function Dashboard() {
                           </span>
                         </div>
                         <div className="min-w-0">
-                          <div className="text-xs font-bold text-slate-800 truncate">{acc.name}</div>
+                          <div className="text-xs font-bold text-slate-800 truncate">{acc.name || 'Connected Account'}</div>
                           <div className="text-[10px] text-slate-400 capitalize flex items-center gap-1 mt-0.5">
                             {platformMeta && <platformMeta.icon className="size-3 text-slate-400 shrink-0" />}
-                            {acc.platform}
+                            {acc.platform || 'Social Profile'}
                           </div>
                         </div>
                       </div>
@@ -346,7 +347,7 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-3">
                 {upcomingPosts.map(post => {
-                  const platformId = post.platforms[0];
+                  const platformId = post.platforms && post.platforms[0] ? post.platforms[0] : '';
                   const platformMeta = platforms.find(p => p.id === platformId);
                   return (
                     <div key={post._id} className="p-3 border border-slate-100 rounded-xl space-y-2 hover:border-slate-200 transition-all">
