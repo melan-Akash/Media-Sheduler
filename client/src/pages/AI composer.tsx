@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { platforms } from '../assets/assets';
-import { HistoryIcon, Loader2Icon, XIcon, CalendarDaysIcon, ClockIcon, TimerIcon, ArrowRightIcon } from 'lucide-react';
+import { HistoryIcon, Loader2Icon, XIcon, CalendarDaysIcon, ClockIcon, TimerIcon, ArrowRightIcon, Trash2Icon } from 'lucide-react';
 import { useApp } from '../context/appcontext';
 import { toast } from 'react-hot-toast';
 
@@ -34,6 +34,21 @@ export default function AIComposer() {
       setGenerations(res.data || []);
     } catch (error: any) {
       console.error("Failed to fetch generations", error);
+    }
+  };
+
+  const handleDeleteGeneration = async (id: string) => {
+    const confirm = window.confirm("Are you sure you want to delete this generation?");
+    if (!confirm) return;
+    try {
+      await api.delete(`/posts/generations/${id}`);
+      toast.success("Generation deleted successfully");
+      fetchGenerations();
+      if (latestGeneration && latestGeneration._id === id) {
+        setLatestGeneration(null);
+      }
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Failed to delete generation");
     }
   };
 
@@ -241,7 +256,16 @@ export default function AIComposer() {
                   <div className="flex flex-col h-full space-y-3">
                      <div className="flex items-center justify-between text-xs">
                         <span className="text-slate-400 font-medium">{new Date(gen.createdAt).toLocaleDateString()}</span>
-                        <span className="px-2 py-0.5 bg-red-55/10 text-red-500 rounded font-semibold text-[10px]">{gen.tone}</span>
+                        <div className="flex items-center gap-2">
+                           <span className="px-2 py-0.5 bg-red-55/10 text-red-500 rounded font-semibold text-[10px]">{gen.tone}</span>
+                           <button 
+                             onClick={() => handleDeleteGeneration(gen._id)}
+                             className="p-1 text-slate-400 hover:text-red-500 rounded-lg hover:bg-slate-50 transition-all cursor-pointer"
+                             title="Delete generation"
+                           >
+                             <Trash2Icon className="size-3.5" />
+                           </button>
+                        </div>
                      </div>
                      <p className="text-sm text-slate-600 font-medium line-clamp-4 leading-relaxed">{gen.content}</p>
                      

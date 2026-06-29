@@ -215,3 +215,20 @@ export const deletePost = async (req: AuthRequest, res: Response): Promise<void>
     res.status(500).json({ message: error.message || 'Server error' });
   }
 };
+
+// DELETE /api/posts/generations/:id
+export const deleteGeneration = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const generation = await Generation.findOne({ _id: req.params.id, user: req.user.id });
+
+    if (!generation) {
+      res.status(404).json({ message: 'Generation not found' });
+      return;
+    }
+
+    await generation.deleteOne();
+    res.json({ message: 'Generation deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+};
