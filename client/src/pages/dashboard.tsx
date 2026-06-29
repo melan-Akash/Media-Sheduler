@@ -14,7 +14,38 @@ export default function Dashboard() {
   const [upcomingPosts, setUpcomingPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [chartMetric, setChartMetric] = useState<'likes' | 'comments' | 'shares'>('likes');
+  const [currentTime, setCurrentTime] = useState(new Date());
   const { api, user } = useApp();
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return { text: 'Good morning', icon: '🌅' };
+    if (hour < 17) return { text: 'Good afternoon', icon: '☀️' };
+    return { text: 'Good evening', icon: '🌙' };
+  };
+
+  const greeting = getGreeting();
+
+  const formattedDate = currentTime.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+
+  const formattedTime = currentTime.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: true
+  });
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -106,9 +137,15 @@ export default function Dashboard() {
     <div className="space-y-8">
       {/* Welcome & Quick Actions Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="space-y-1">
-          <h2 className="text-3xl font-semibold text-slate-850">Good morning, {user?.name || 'User'}! 👋</h2>
-          <p className="text-sm text-slate-500">Here's what's happening with your social accounts today.</p>
+        <div className="space-y-1.5">
+          <h2 className="text-3xl font-semibold text-slate-850">
+            {greeting.text}, {user?.name || 'User'}! {greeting.icon}
+          </h2>
+          <p className="text-sm font-medium text-slate-505 flex items-center gap-2 flex-wrap">
+            <span>{formattedDate}</span>
+            <span className="text-slate-300 hidden sm:inline">•</span>
+            <span className="text-red-500 font-bold tabular-nums">{formattedTime}</span>
+          </p>
         </div>
         
         {/* Quick Actions */}
