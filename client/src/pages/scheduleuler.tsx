@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { platforms } from '../assets/assets';
-import { CalendarDaysIcon, ClockIcon, XIcon, ArrowRightIcon, Loader2Icon, SendIcon, Trash2Icon } from 'lucide-react';
+import { 
+  CalendarDaysIcon, ClockIcon, XIcon, ArrowRightIcon, Loader2Icon, SendIcon, Trash2Icon,
+  CloudUploadIcon, HeartIcon, MessageCircleIcon, Share2Icon, BookmarkIcon, ThumbsUpIcon, 
+  GlobeIcon, MoreHorizontalIcon 
+} from 'lucide-react';
 import { useApp } from '../context/appcontext';
 import { toast } from 'react-hot-toast';
 
@@ -12,7 +16,35 @@ export default function Scheduler() {
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [previewPlatform, setPreviewPlatform] = useState<'twitter' | 'facebook' | 'instagram'>('twitter');
+  const [isDragging, setIsDragging] = useState(false);
   const { api } = useApp();
+
+  const getCharacterLimit = () => {
+    if (selectedPlatforms.includes('twitter')) return 280;
+    if (selectedPlatforms.includes('instagram')) return 2200;
+    if (selectedPlatforms.includes('linkedin')) return 3000;
+    return 5000;
+  };
+
+  const charLimit = getCharacterLimit();
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setMediaFile(e.dataTransfer.files[0]);
+    }
+  };
 
   const handleDeletePost = async (postId: string) => {
     const confirm = window.confirm("Are you sure you want to delete this scheduled post?");
@@ -124,9 +156,11 @@ export default function Scheduler() {
                  placeholder="What do you want to share today?"
                  value={content}
                  onChange={(e) => setContent(e.target.value)}
-                 className="w-full p-4 border border-slate-200 rounded-xl focus:outline-none focus:border-slate-300 text-sm text-slate-800 placeholder-slate-400 resize-none"
+                 className={`w-full p-4 border rounded-xl focus:outline-none text-sm text-slate-800 placeholder-slate-400 resize-none ${content.length > charLimit ? 'border-red-500 focus:border-red-500' : 'border-slate-200 focus:border-slate-300'}`}
                />
-               <div className="text-right text-xs text-slate-400 mt-1">{content.length} / 280</div>
+               <div className={`text-right text-xs mt-1 font-semibold ${content.length > charLimit ? 'text-red-500' : 'text-slate-400'}`}>
+                 {content.length} / {charLimit}
+               </div>
             </div>
 
             {/* Media Upload */}
@@ -142,8 +176,14 @@ export default function Scheduler() {
                   <button type="button" onClick={() => setMediaFile(null)} className="absolute top-2 right-2 p-1 bg-slate-900/65 hover:bg-slate-900/80 text-white rounded-full transition-all cursor-pointer"><XIcon className="size-4" /></button>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center cursor-pointer border border-dashed border-slate-200 rounded-xl py-8 px-4 text-center hover:bg-slate-50/50 transition-all text-slate-400 text-xs gap-1 h-32">
-                  <span>Click to upload image or video</span>
+                <label 
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  className={`flex flex-col items-center justify-center cursor-pointer border-2 border-dashed rounded-xl py-6 px-4 text-center transition-all text-slate-400 text-xs gap-1.5 h-32 hover:bg-slate-50/50 ${isDragging ? 'border-red-500 bg-red-50/10' : 'border-slate-200'}`}
+                >
+                  <CloudUploadIcon className={`size-7 transition-all ${isDragging ? 'text-red-500 animate-bounce' : 'text-slate-300'}`} />
+                  <span>Drag & drop media here, or <span className="text-red-500 font-medium">browse</span></span>
                   <input 
                     type="file" accept="image/*,video/*" className="hidden"
                     onChange={(e) => e.target.files && setMediaFile(e.target.files[0])}
@@ -179,6 +219,162 @@ export default function Scheduler() {
       {/* Queue Panels */}
       <div className="flex-1 w-full space-y-6">
         
+        {/* Social Media Live Preview Card */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6 space-y-5">
+           <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
+              <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                <GlobeIcon className="size-4 text-slate-550" />
+                Social Media Live Preview
+              </h3>
+              
+              {/* Tabs */}
+              <div className="flex bg-slate-50 p-0.5 rounded-lg border border-slate-200">
+                {(['twitter', 'facebook', 'instagram'] as const).map(p => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setPreviewPlatform(p)}
+                    className={`px-3 py-1 text-[10px] font-bold rounded-md capitalize transition-all cursor-pointer ${previewPlatform === p ? 'bg-white text-red-500 shadow-xs' : 'text-slate-450 hover:text-slate-650'}`}
+                  >
+                    {p === 'twitter' ? 'X / Twitter' : p}
+                  </button>
+                ))}
+              </div>
+           </div>
+
+           {/* Mockup Container */}
+           <div className="bg-slate-50/30 p-4 rounded-xl border border-slate-100 flex justify-center">
+              {previewPlatform === 'twitter' && (
+                <div className="bg-white border border-slate-200 rounded-xl p-4 w-full max-w-md text-slate-850 text-sm font-sans shadow-xs">
+                  <div className="flex gap-3">
+                    {/* Avatar */}
+                    <div className="size-10 rounded-full bg-red-500 text-white flex items-center justify-center font-bold shrink-0">
+                      U
+                    </div>
+                    {/* Tweet Body */}
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-bold text-slate-900 truncate">Your Name</span>
+                        <span className="text-slate-400 text-xs truncate">@yourhandle · 1m</span>
+                      </div>
+                      <p className="text-slate-800 whitespace-pre-wrap leading-normal break-words">{content || "What's happening? (Type in the compose box to preview)"}</p>
+                      
+                      {mediaFile && (
+                        <div className="overflow-hidden rounded-xl border border-slate-200 aspect-video bg-slate-55 flex items-center justify-center">
+                          {mediaFile.type.startsWith('image/') ? (
+                            <img src={URL.createObjectURL(mediaFile)} alt="preview" className="max-h-full max-w-full object-contain" />
+                          ) : (
+                            <video src={URL.createObjectURL(mediaFile)} className="max-h-full" />
+                          )}
+                        </div>
+                      )}
+                      
+                      {/* Twitter Action Icons */}
+                      <div className="flex justify-between text-slate-400 pt-1.5 max-w-md">
+                        <MessageCircleIcon className="size-4 hover:text-sky-500 cursor-pointer" />
+                        <Share2Icon className="size-4 hover:text-emerald-500 cursor-pointer" />
+                        <HeartIcon className="size-4 hover:text-pink-500 cursor-pointer" />
+                        <BookmarkIcon className="size-4 hover:text-sky-500 cursor-pointer" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {previewPlatform === 'facebook' && (
+                <div className="bg-white border border-slate-200 rounded-xl w-full max-w-md text-slate-850 text-sm font-sans shadow-xs overflow-hidden">
+                  {/* Header */}
+                  <div className="p-4 flex items-center justify-between">
+                    <div className="flex gap-3">
+                      <div className="size-10 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">
+                        U
+                      </div>
+                      <div>
+                        <div className="font-bold text-slate-900">Your Page</div>
+                        <div className="text-slate-400 text-xs flex items-center gap-1 mt-0.5">
+                          1m · <GlobeIcon className="size-3" />
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" className="text-slate-400 hover:text-slate-600"><MoreHorizontalIcon className="size-5" /></button>
+                  </div>
+
+                  {/* Body */}
+                  <div className="px-4 pb-3 space-y-3">
+                    <p className="text-slate-800 whitespace-pre-wrap leading-normal break-words">{content || "Write something to preview your Facebook post..."}</p>
+                  </div>
+
+                  {/* Media */}
+                  {mediaFile && (
+                    <div className="border-t border-b border-slate-100 bg-slate-55 flex items-center justify-center aspect-video max-h-80 overflow-hidden">
+                      {mediaFile.type.startsWith('image/') ? (
+                        <img src={URL.createObjectURL(mediaFile)} alt="preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <video src={URL.createObjectURL(mediaFile)} controls className="w-full h-full object-cover" />
+                      )}
+                    </div>
+                  )}
+
+                  {/* Facebook Actions */}
+                  <div className="px-4 py-2 border-t border-slate-100 flex justify-between text-slate-500 font-semibold text-xs">
+                    <button type="button" className="flex items-center gap-2 py-1 px-2 hover:bg-slate-50 rounded-md cursor-pointer"><ThumbsUpIcon className="size-4 text-slate-450" /> Like</button>
+                    <button type="button" className="flex items-center gap-2 py-1 px-2 hover:bg-slate-50 rounded-md cursor-pointer"><MessageCircleIcon className="size-4 text-slate-450" /> Comment</button>
+                    <button type="button" className="flex items-center gap-2 py-1 px-2 hover:bg-slate-50 rounded-md cursor-pointer"><Share2Icon className="size-4 text-slate-450" /> Share</button>
+                  </div>
+                </div>
+              )}
+
+              {previewPlatform === 'instagram' && (
+                <div className="bg-white border border-slate-200 rounded-xl w-full max-w-md text-slate-850 text-sm font-sans shadow-xs overflow-hidden">
+                  {/* Header */}
+                  <div className="p-3.5 flex items-center justify-between border-b border-slate-100">
+                    <div className="flex gap-3 items-center">
+                      <div className="size-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-xs">
+                        U
+                      </div>
+                      <span className="font-bold text-slate-900 text-xs">your_username</span>
+                    </div>
+                    <button type="button" className="text-slate-400 hover:text-slate-600"><MoreHorizontalIcon className="size-4" /></button>
+                  </div>
+
+                  {/* Media */}
+                  <div className="aspect-square bg-slate-50 flex items-center justify-center overflow-hidden border-b border-slate-100">
+                    {mediaFile ? (
+                      mediaFile.type.startsWith('image/') ? (
+                        <img src={URL.createObjectURL(mediaFile)} alt="preview" className="w-full h-full object-cover" />
+                      ) : (
+                        <video src={URL.createObjectURL(mediaFile)} controls className="w-full h-full object-cover" />
+                      )
+                    ) : (
+                      <div className="text-slate-400 text-xs text-center p-6 flex flex-col items-center gap-2">
+                        <CloudUploadIcon className="size-8 text-slate-300" />
+                        <span>Upload an image or video to preview on Instagram</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Instagram Actions */}
+                  <div className="p-3.5 space-y-2.5">
+                    <div className="flex justify-between items-center text-slate-800">
+                      <div className="flex gap-4">
+                        <HeartIcon className="size-5 hover:text-red-500 cursor-pointer" />
+                        <MessageCircleIcon className="size-5 hover:scale-105 cursor-pointer" />
+                        <Share2Icon className="size-5 hover:scale-105 cursor-pointer" />
+                      </div>
+                      <BookmarkIcon className="size-5 hover:scale-105 cursor-pointer" />
+                    </div>
+                    
+                    {/* Caption */}
+                    <p className="text-xs leading-normal break-words">
+                      <span className="font-bold text-slate-900 mr-1.5">your_username</span>
+                      <span className="text-slate-600 whitespace-pre-wrap">{content || "Your caption here..."}</span>
+                    </p>
+                  </div>
+                </div>
+              )}
+           </div>
+        </div>
+
         {/* Upcoming Posts */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6">
            <div className="flex items-center justify-between mb-5">
