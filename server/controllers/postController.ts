@@ -85,14 +85,16 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
 
     let mediaUrl = '';
 
-    // Use Leonardo.ai for image generation
+    // Use Leonardo.ai for image generation, fallback to Pollinations.ai (100% Free, no key required)
     if (generateImage) {
       try {
         const leonardoKey = process.env.LEONARDO_API_KEY;
-        if (leonardoKey) {
+        let tempUrl = '';
+
+        if (leonardoKey && leonardoKey !== 'your_leonardo_ai_key_here') {
           const leoResponse = await axios.post('https://cloud.leonardo.ai/api/rest/v1/generations', {
             public: false,
-            modelId: '6b645e3a-d64f-4341-a6d8-7a3690fbf042', // Example ID for GPT2
+            modelId: '6b645e3a-d64f-4341-a6d8-7a3690fbf042',
             quality: 'LOW',
             prompt: imagePrompt,
             num_images: 1,
@@ -108,8 +110,14 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
           });
           
           const generationId = leoResponse.data.sdGenerationJob.generationId;
-          const tempUrl = await pollLeonardoJob(generationId, leonardoKey);
-          
+          tempUrl = await pollLeonardoJob(generationId, leonardoKey);
+        } else {
+          // Fallback to Pollinations.ai - Free, No key, Fast
+          const seed = Math.floor(Math.random() * 1000000);
+          tempUrl = `https://image.pollinations.ai/p/${encodeURIComponent(imagePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+        }
+
+        if (tempUrl) {
           // Upload to Cloudinary for persistence
           const uploadResult = await cloudinary.uploader.upload(tempUrl, {
             folder: 'ai_generations'
