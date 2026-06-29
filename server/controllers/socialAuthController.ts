@@ -19,8 +19,9 @@ const getOrCreateZeroProfile = async (user: any): Promise<string> => {
     }
 
     const createResult = await zero.profiles.createProfile({
-      name: user.name || user.email,
-      workspace: undefined as any,
+      body: {
+        name: user.name || user.email,
+      }
     });
     
     const created = (createResult.data as any)?.profile || createResult.data;
@@ -46,8 +47,11 @@ export const generateAuthUrl = async (req: AuthRequest, res: Response): Promise<
     const redirectUrl = `${origin}/accounts`;
 
     const result = await zero.connect.getConnectUrl({
-      platform: platform as any,
-      query: { profileId, redirectUrl } as any
+      path: { platform: platform as any },
+      query: {
+        profileId,
+        redirect_url: redirectUrl
+      }
     });
 
     const data = result.data as any;
@@ -69,7 +73,9 @@ export const generateAuthUrl = async (req: AuthRequest, res: Response): Promise<
 export const syncAccounts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const profileId = await getOrCreateZeroProfile(req.user);
-    const result = await zero.accounts.listAccounts({ profileId: profileId as any });
+    const result = await zero.accounts.listAccounts({
+      query: { profileId }
+    });
     const data = result.data as any;
     
     const zAccounts: any[] = data.accounts || (Array.isArray(data) ? data : []);

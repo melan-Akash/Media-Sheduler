@@ -43,7 +43,9 @@ export const disconnectAccount = async (req: AuthRequest, res: Response): Promis
 
     if (account.zeroAccountId) {
       try {
-        await zero.accounts.deleteAccount({ accountId: account.zeroAccountId });
+        await zero.accounts.deleteAccount({
+          path: { accountId: account.zeroAccountId }
+        });
       } catch (error: any) {
         res.status(500).json({ message: error.message || 'Server error' });
         return;
