@@ -2,35 +2,85 @@ import { useState, useEffect } from 'react';
 import { PlusIcon } from 'lucide-react';
 import AccountList from '../components/accountlist';
 import PlatformPickerModel from '../components/ppm';
-import { dummyAccountsData, platforms } from '../assets/assets';
+import { platforms } from '../assets/assets';
+import { useApp } from '../context/appcontext';
+import { toast } from 'react-hot-toast';
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [connecting, setConnecting] = useState<string | null>(null);
   const [showPlatformPicker, setShowPlatformPicker] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const { api } = useApp();
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const hasOAuthCallback = searchParams.has('connected') || searchParams.has('accountId');
+
     const fetchAccounts = async () => {
-      setAccounts(dummyAccountsData);
+      setLoading(true);
+      try {
+        if (hasOAuthCallback) {
+          toast.loading("Syncing connected account...", { id: "sync" });
+          await api.get('/auth/sync');
+          toast.success("Account connected successfully!", { id: "sync" });
+          // Clean the URL query params
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        
+        const res = await api.get('/accounts');
+        const mapped = (res.data || []).map((acc: any) => ({
+          id: acc._id,
+          platform: acc.platform.toLowerCase().replace(/\s+page|\s+business/g, ''),
+          handle: acc.handle,
+          status: acc.status || 'connected'
+        }));
+        setAccounts(mapped);
+      } catch (error: any) {
+        toast.error(error.message || "Failed to load accounts");
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchAccounts();
-  }, []);
+  }, [api]);
 
   const handleDisconnect = async (accountId: string) => {
-    setAccounts(accounts.filter((a) => a.id !== accountId));
+    try {
+      await api.delete(`/accounts/${accountId}`);
+      setAccounts(accounts.filter((a) => a.id !== accountId));
+      toast.success("Account disconnected successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to disconnect account");
+    }
   };
 
   const handleConnect = async (platformId: string) => {
     setConnecting(platformId);
-    // Simulate API connection delay
-    setTimeout(() => {
+    try {
+      const res = await api.get(`/auth/${platformId}/url`);
+      const { authUrl } = res.data;
+      if (authUrl) {
+        window.location.href = authUrl;
+      } else {
+        throw new Error("Could not retrieve connection URL");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to initiate connection");
       setConnecting(null);
-      setAccounts([...accounts, dummyAccountsData]);
-      setShowPlatformPicker(false);
-    }, 1000);
+    }
   };
 
   const connectedIds = accounts.map((a) => a.platform);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-5xl">

@@ -1,42 +1,60 @@
 import { useState, useEffect } from 'react';
 import { ClockIcon, CheckCircleIcon, UsersIcon, TrendingUpIcon, ActivityIcon, SendIcon } from 'lucide-react';
-import { dummyPostsData, dummyAccountsData, dummyActivityData } from '../assets/assets';
+import { useApp } from '../context/appcontext';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ scheduled: 0, published: 0, connectedAccounts: 0 });
   const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { api, user } = useApp();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const posts = dummyPostsData;
-        const accounts = dummyAccountsData;
-        const activityData = dummyActivityData;
+        const [postsRes, accountsRes, activityRes] = await Promise.all([
+          api.get('/posts'),
+          api.get('/accounts'),
+          api.get('/activity')
+        ]);
+
+        const posts = postsRes.data || [];
+        const accounts = accountsRes.data || [];
+        const activityData = activityRes.data || [];
 
         setStats({
           scheduled: posts.filter((p: any) => p.status === 'scheduled').length,
           published: posts.filter((p: any) => p.status === 'published').length,
-          connectedAccounts: accounts.filter((a: any) => a.status === 'connected').length
+          connectedAccounts: accounts.length
         });
         setActivities(activityData);
       } catch (error: any) {
         console.error("Error fetching dashboard data", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchDashboardData();
-  }, []);
+  }, [api]);
 
   const statCards = [
-    { label: 'Scheduled Posts', value: stats.scheduled, icon: ClockIcon, trend: '+2 today' },
+    { label: 'Scheduled Posts', value: stats.scheduled, icon: ClockIcon, trend: 'Active' },
     { label: 'Published Posts', value: stats.published, icon: CheckCircleIcon, trend: 'All time' },
-    { label: 'Connected Accounts', value: stats.connectedAccounts, icon: UsersIcon, trend: 'Active' }
+    { label: 'Connected Accounts', value: stats.connectedAccounts, icon: UsersIcon, trend: 'Linked' }
   ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       {/* Welcome Message */}
       <div className="space-y-1">
-        <h2 className="text-3xl font-semibold text-slate-800">Good morning! 👋</h2>
+        <h2 className="text-3xl font-semibold text-slate-800">Good morning, {user?.name || 'User'}! 👋</h2>
         <p className="text-sm text-slate-500">Here's what's happening with your social accounts today.</p>
       </div>
 
