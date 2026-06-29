@@ -6,42 +6,6 @@ import cloudinary from '../config/cloudinary.js';
 import { Generation } from '../models/generation.js';
 import { Post } from '../models/post.js';
 
-// Helper to poll Leonardo.ai for image generation status
-const pollLeonardoJob = async (generationId: string, apiKey: string): Promise<string> => {
-  const maxRetries = 20;
-  const delay = 5000;
-  
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      const response = await axios.get(`https://cloud.leonardo.ai/api/rest/v1/generations/${generationId}`, {
-        headers: {
-          accept: 'application/json',
-          authorization: `Bearer ${apiKey}`
-        }
-      });
-      
-      const generation = response.data.generations_by_pk;
-      
-      if (generation.status === 'COMPLETE') {
-        if (generation.generated_images && generation.generated_images.length > 0) {
-          return generation.generated_images.url;
-        }
-        throw new Error('generation complete but no image found');
-      }
-      
-      if (generation.status === 'FAILED') {
-        throw new Error('Leonardo.ai generation failed');
-      }
-      
-    } catch (error: any) {
-      console.error('polling error', error.response?.data || error.message);
-    }
-    
-    await new Promise((resolve) => setTimeout(resolve, delay));
-  }
-  
-  throw new Error('Leonardo.ai generation timeout');
-};
 
 // POST /api/posts/generate
 export const generatePost = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -85,32 +49,24 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
 
     let mediaUrl = '';
 
-    // Use Leonardo.ai for image generation, fallback to Pollinations.ai (100% Free, no key required)
+    // Use Hugging Face for image generation, fallback to Pollinations.ai
     if (generateImage) {
       try {
-        const leonardoKey = process.env.LEONARDO_API_KEY;
+        const hfToken = process.env.HF_ACCESS_TOKEN;
         let tempUrl = '';
 
-        if (leonardoKey && leonardoKey !== 'your_leonardo_ai_key_here') {
-          const leoResponse = await axios.post('https://cloud.leonardo.ai/api/rest/v1/generations', {
-            public: false,
-            modelId: '6b645e3a-d64f-4341-a6d8-7a3690fbf042',
-            quality: 'LOW',
-            prompt: imagePrompt,
-            num_images: 1,
-            width: 1024,
-            height: 1024,
-            promptMagic: false
-          }, {
-            headers: {
-              accept: 'application/json',
-              authorization: `Bearer ${leonardoKey}`,
-              'content-type': 'application/json'
+        if (hfToken && hfToken !== 'your_hugging_face_token_here') {
+          // Hugging Face Inference API - Free, High-quality SDXL
+          const hfResponse = await axios.post(
+            'https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0',
+            { inputs: imagePrompt },
+            {
+              headers: { Authorization: `Bearer ${hfToken}` },
+              responseType: 'arraybuffer'
             }
-          });
-          
-          const generationId = leoResponse.data.sdGenerationJob.generationId;
-          tempUrl = await pollLeonardoJob(generationId, leonardoKey);
+          );
+          const base64Image = Buffer.from(hfResponse.data, 'binary').toString('base64');
+          tempUrl = `data:image/jpeg;base64,${base64Image}`;
         } else {
           // Fallback to Pollinations.ai - Free, No key, Fast
           const seed = Math.floor(Math.random() * 1000000);
@@ -125,7 +81,18 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
           mediaUrl = uploadResult.secure_url;
         }
       } catch (error: any) {
-        console.error('image generation failed', error);
+        console.error('image generation failed, trying Pollinations.ai fallback...', error);
+        // Instant fallback to Pollinations.ai if HF fails
+        try {
+          const seed = Math.floor(Math.random() * 1000000);
+          const fallbackUrl = `https://image.pollinations.ai/p/${encodeURIComponent(imagePrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+          const uploadResult = await cloudinary.uploader.upload(fallbackUrl, {
+            folder: 'ai_generations'
+          });
+          mediaUrl = uploadResult.secure_url;
+        } catch (fallbackError) {
+          console.error('fallback image generation also failed', fallbackError);
+        }
       }
     }
 
