@@ -54,6 +54,13 @@ export default function AIComposer() {
 
   useEffect(() => {
     fetchGenerations();
+    
+    // Parse query parameters
+    const params = new URLSearchParams(window.location.search);
+    const promptParam = params.get('prompt');
+    if (promptParam) {
+      setPrompt(promptParam);
+    }
   }, [api]);
 
   const handleGenerate = async () => {
