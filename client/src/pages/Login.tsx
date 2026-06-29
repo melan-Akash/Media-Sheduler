@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { MailIcon, LockIcon, ArrowRightIcon, User2Icon } from "lucide-react";
+import { useApp } from "../context/appcontext";
+import { toast } from "react-hot-toast";
 
 export default function Login() {
     const [loginState, setLoginState] = useState(true);
@@ -9,14 +11,25 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { login, register } = useApp();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setTimeout(() => {
-            setLoading(false);
+        try {
+            if (loginState) {
+                await login(email, password);
+                toast.success("Welcome back!");
+            } else {
+                await register(name, email, password);
+                toast.success("Account created successfully!");
+            }
             navigate("/dashboard");
-        }, 1000);
+        } catch (error: any) {
+            toast.error(error.message || "Authentication failed");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
