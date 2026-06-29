@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { platforms } from '../assets/assets';
-import { CalendarDaysIcon, ClockIcon, XIcon, ArrowRightIcon, Loader2Icon, SendIcon } from 'lucide-react';
+import { CalendarDaysIcon, ClockIcon, XIcon, ArrowRightIcon, Loader2Icon, SendIcon, Trash2Icon } from 'lucide-react';
 import { useApp } from '../context/appcontext';
 import { toast } from 'react-hot-toast';
 
@@ -13,6 +13,18 @@ export default function Scheduler() {
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const { api } = useApp();
+
+  const handleDeletePost = async (postId: string) => {
+    const confirm = window.confirm("Are you sure you want to delete this scheduled post?");
+    if (!confirm) return;
+    try {
+      await api.delete(`/posts/${postId}`);
+      toast.success("Post deleted successfully");
+      fetchPosts();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || error.message || "Failed to delete post");
+    }
+  };
 
   const fetchPosts = async () => {
     try {
@@ -196,7 +208,16 @@ export default function Scheduler() {
                             <span className="text-xs font-semibold px-2 py-0.5 bg-slate-100 text-slate-500 rounded">Image</span>
                           )}
                         </div>
-                        <span className="text-xs text-slate-400">{new Date(post.scheduledFor).toLocaleString()}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-slate-400">{new Date(post.scheduledFor).toLocaleString()}</span>
+                          <button 
+                            onClick={() => handleDeletePost(post._id)}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-slate-50 rounded-lg transition-all cursor-pointer"
+                            title="Delete post"
+                          >
+                            <Trash2Icon className="size-4" />
+                          </button>
+                        </div>
                       </div>
                       <p className="text-sm text-slate-600 font-medium line-clamp-2">{post.content}</p>
                     </div>

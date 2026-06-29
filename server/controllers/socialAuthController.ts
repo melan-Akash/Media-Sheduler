@@ -63,7 +63,7 @@ export const generateAuthUrl = async (req: AuthRequest, res: Response): Promise<
       throw new Error(`zero returned no auth url, full response: ${JSON.stringify(data)}`);
     }
 
-    res.json({ url });
+    res.json({ url, authUrl: url });
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Server error' });
   }

@@ -104,23 +104,39 @@ export default function AIComposer() {
       {/* Input Section */}
       <div className="flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
         <h1 className="text-3xl font-semibold text-slate-800">What should we create today?</h1>
-        <div className="w-full bg-white border border-slate-250 rounded-2xl p-4 focus-within:border-slate-350 shadow-xs transition-all relative">
+        <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 focus-within:border-slate-300 shadow-xs transition-all relative">
           <textarea 
             placeholder="Share your idea... (e.g. A post about the launch of our new eco-friendly coffee beans)"
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            className="w-full h-28 text-sm text-slate-800 placeholder-slate-400 focus:outline-none resize-none pb-12"
+            className="w-full h-32 text-sm text-slate-800 placeholder-slate-400 focus:outline-none resize-none pb-16"
           />
           
-          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-             <button onClick={() => setGenerateImage(!generateImage)} className="flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-50 hover:bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-150 transition-all cursor-pointer">
-                <span>AI Image</span>
-                <div className={`w-8 h-4.5 rounded-full relative transition-all ${generateImage ? 'bg-red-500' : 'bg-slate-200'}`}>
-                   <span className={`absolute top-0.5 size-3.5 bg-white rounded-full transition-all ${generateImage ? 'left-4' : 'left-0.5'}`} />
-                </div>
-             </button>
+          <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between flex-wrap gap-3">
+             <div className="flex items-center gap-3 flex-wrap">
+                 <button onClick={() => setGenerateImage(!generateImage)} className="flex items-center gap-2 text-xs font-medium text-slate-500 bg-slate-55 hover:bg-slate-100/80 px-3 py-1.5 rounded-full border border-slate-200 transition-all cursor-pointer shrink-0">
+                    <span>AI Image</span>
+                    <div className={`w-8 h-4.5 rounded-full relative transition-all ${generateImage ? 'bg-red-500' : 'bg-slate-200'}`}>
+                       <span className={`absolute top-0.5 size-3.5 bg-white rounded-full transition-all ${generateImage ? 'left-4' : 'left-0.5'}`} />
+                    </div>
+                 </button>
 
-             <button onClick={handleGenerate} disabled={loading} className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer disabled:opacity-60">
+                 <div className="h-4 w-[1px] bg-slate-200 hidden md:block shrink-0" />
+
+                 {/* Tone Selector */}
+                 <div className="flex items-center gap-1 bg-slate-50 p-0.5 rounded-full border border-slate-200 overflow-x-auto">
+                    {tones.map(t => (
+                      <button 
+                        key={t} onClick={() => setTone(t)}
+                        className={`px-3 py-1 text-[11px] font-medium rounded-full transition-all cursor-pointer shrink-0 ${tone === t ? 'bg-red-500 text-white shadow-xs' : 'text-slate-500 hover:text-slate-800'}`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                 </div>
+             </div>
+
+             <button onClick={handleGenerate} disabled={loading} className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-full text-sm font-medium transition-all cursor-pointer disabled:opacity-60 shrink-0">
                 {loading ? (
                    <><Loader2Icon className="animate-spin size-4" /> Generating...</>
                 ) : (
@@ -128,18 +144,6 @@ export default function AIComposer() {
                 )}
              </button>
           </div>
-        </div>
-
-        {/* Tone Selector */}
-        <div className="flex flex-wrap justify-center gap-3">
-           {tones.map(t => (
-             <button 
-               key={t} onClick={() => setTone(t)}
-               className={`px-4 py-1.5 text-xs font-medium border rounded-full transition-all cursor-pointer ${tone === t ? 'bg-red-500 border-red-500 text-white shadow-xs' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
-             >
-               {t}
-             </button>
-           ))}
         </div>
       </div>
 

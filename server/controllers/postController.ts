@@ -147,6 +147,17 @@ export const schedulePost = async (req: AuthRequest, res: Response): Promise<voi
       }
     }
 
+    const platformMapping: Record<string, string> = {
+      'twitter': 'Twitter',
+      'linkedin': 'LinkedIn',
+      'facebook': 'Facebook',
+      'instagram': 'Instagram'
+    };
+
+    const mappedPlatforms = (Array.isArray(parsedPlatforms) ? parsedPlatforms : []).map(
+      (p: string) => platformMapping[p.toLowerCase()] || p
+    );
+
     let mediaUrl: string | undefined = req.body.mediaUrl;
     let mediaType: 'image' | 'video' | undefined = req.body.mediaType;
 
@@ -172,7 +183,7 @@ export const schedulePost = async (req: AuthRequest, res: Response): Promise<voi
     const post = await Post.create({
       user: req.user.id,
       content,
-      platforms: parsedPlatforms,
+      platforms: mappedPlatforms,
       mediaUrl,
       mediaType,
       scheduledFor,
@@ -180,6 +191,23 @@ export const schedulePost = async (req: AuthRequest, res: Response): Promise<voi
     });
 
     res.status(201).json(post);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+};
+
+// DELETE /api/posts/:id
+export const deletePost = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const post = await Post.findOne({ _id: req.params.id, user: req.user.id });
+
+    if (!post) {
+      res.status(404).json({ message: 'Post not found' });
+      return;
+    }
+
+    await post.deleteOne();
+    res.json({ message: 'Post deleted successfully' });
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Server error' });
   }
