@@ -23,7 +23,10 @@ const generationSchema = new mongoose.Schema({
   },
   tone: { 
     type: String 
-  }
+  },
+  hashtags: [{
+    type: String
+  }]
 }, { 
   timestamps: true 
 });

@@ -27,7 +27,7 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
         messages: [
           {
             role: 'user',
-            content: `generate a social media post based on this prompt: "${prompt}". tone: ${tone}. include relevant hashtags. format the response as JSON with content and imagePrompt fields. the imagePrompt should be a highly descriptive prompt for an image generator that complements the post.`
+            content: `generate a social media post based on this prompt: "${prompt}". tone: ${tone}. format the response as JSON with content, imagePrompt, and hashtags (an array of strings without the '#' symbol, e.g. ["AI", "WebDev"]) fields. the imagePrompt should be a highly descriptive prompt for an image generator that complements the post. do not include hashtags inside the content field; return them separately in the hashtags field.`
           }
         ]
       }
@@ -35,16 +35,18 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
 
     let content = '';
     let imagePrompt = prompt;
+    let hashtags: string[] = [];
 
     try {
       const rawText = (textResponse as any).choices?.[0]?.message?.content || '';
       const jsonMatch = rawText.match(/```json\s*([\s\S]*?)```/);
-      const data = jsonMatch ? JSON.parse(jsonMatch[1]!) : { content: rawText, imagePrompt: prompt || '' };
+      const data = jsonMatch ? JSON.parse(jsonMatch[1]!) : { content: rawText, imagePrompt: prompt || '', hashtags: [] };
       
       content = data.content;
       imagePrompt = data.imagePrompt;
+      hashtags = data.hashtags || [];
     } catch (e) {
-      content = textResponse.choices[0]?.message?.content || '';
+      content = (textResponse as any).choices?.[0]?.message?.content || '';
     }
 
     let mediaUrl = '';
@@ -103,7 +105,8 @@ export const generatePost = async (req: AuthRequest, res: Response): Promise<voi
       content,
       mediaUrl,
       mediaType: mediaUrl ? 'image' : undefined,
-      tone: tone || undefined
+      tone: tone || undefined,
+      hashtags
     });
 
     res.json(generation);

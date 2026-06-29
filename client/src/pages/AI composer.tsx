@@ -4,7 +4,7 @@ import { HistoryIcon, Loader2Icon, XIcon, CalendarDaysIcon, ClockIcon, TimerIcon
 import { useApp } from '../context/appcontext';
 import { toast } from 'react-hot-toast';
 
-const tones = ['Professional', 'Creative', 'Funny', 'Minimalist', 'Excited'];
+const tones = ['Professional', 'Creative', 'Funny', 'Sarcastic', 'Informative'];
 
 export default function AIComposer() {
   const [prompt, setPrompt] = useState('');
@@ -12,6 +12,7 @@ export default function AIComposer() {
   const [generateImage, setGenerateImage] = useState(true);
   const [loading, setLoading] = useState(false);
   const [generations, setGenerations] = useState<any[]>([]);
+  const [latestGeneration, setLatestGeneration] = useState<any | null>(null);
   
   // Scheduling States
   const [activeScheduler, setActiveScheduler] = useState<any>(null);
@@ -49,13 +50,14 @@ export default function AIComposer() {
     setLoading(true);
     toast.loading("Generating content...", { id: "generate" });
     try {
-      await api.post('/posts/generate', {
+      const res = await api.post('/posts/generate', {
         prompt,
         tone,
         generateImage
       });
       toast.success("Content generated successfully!", { id: "generate" });
       setPrompt('');
+      setLatestGeneration(res.data);
       fetchGenerations();
     } catch (error: any) {
       toast.error(error.response?.data?.message || error.message || "Failed to generate content", { id: "generate" });
@@ -147,6 +149,75 @@ export default function AIComposer() {
         </div>
       </div>
 
+      {/* Latest Generation Preview Section */}
+      {latestGeneration && (
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-5 max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold text-slate-850 flex items-center gap-2">
+              <span className="flex h-2.5 w-2.5 rounded-full bg-red-500 animate-pulse" />
+              Latest Generation Preview
+            </h2>
+            <button 
+              onClick={() => setLatestGeneration(null)}
+              className="p-1 hover:bg-slate-50 rounded-full text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+            >
+              <XIcon className="size-4.5" />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Content Text */}
+            <p className="text-slate-600 text-sm whitespace-pre-wrap leading-relaxed">{latestGeneration.content}</p>
+
+            {/* Separated Hashtags Box */}
+            {latestGeneration.hashtags && latestGeneration.hashtags.length > 0 && (
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-2">
+                <span className="text-[10px] font-bold text-slate-400 tracking-wider block">AUTO-GENERATED HASHTAGS</span>
+                <div className="flex flex-wrap gap-2">
+                  {latestGeneration.hashtags.map((h: string) => (
+                    <span 
+                      key={h} 
+                      onClick={() => {
+                        navigator.clipboard.writeText(`#${h}`);
+                        toast.success(`Copied: #${h}`);
+                      }}
+                      className="px-2.5 py-1 bg-red-50 hover:bg-red-100/60 text-red-600 text-xs font-semibold rounded-full border border-red-100 transition-all cursor-pointer"
+                      title="Click to copy hashtag"
+                    >
+                      #{h}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* AI Image Generation Preview */}
+            {latestGeneration.mediaUrl && (
+              <div className="relative overflow-hidden rounded-xl border border-slate-100 aspect-video flex items-center justify-center bg-slate-50 max-h-80 group">
+                <img 
+                  src={latestGeneration.mediaUrl} 
+                  alt="AI Generated Preview" 
+                  className="max-h-full max-w-full object-contain group-hover:scale-[1.01] transition-all duration-300" 
+                />
+              </div>
+            )}
+
+            {/* Action Area */}
+            <div className="flex justify-end pt-2">
+              <button 
+                onClick={() => {
+                  setActiveScheduler(latestGeneration);
+                  setSelectedPlatforms([]);
+                }}
+                className="flex items-center gap-1.5 bg-red-500 hover:bg-red-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold shadow-xs hover:shadow-md transition-all cursor-pointer"
+              >
+                <TimerIcon className="size-4" /> Schedule Post
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* AI Generated Posts List */}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
@@ -173,6 +244,16 @@ export default function AIComposer() {
                         <span className="px-2 py-0.5 bg-red-55/10 text-red-500 rounded font-semibold text-[10px]">{gen.tone}</span>
                      </div>
                      <p className="text-sm text-slate-600 font-medium line-clamp-4 leading-relaxed">{gen.content}</p>
+                     
+                     {gen.hashtags && gen.hashtags.length > 0 && (
+                       <div className="flex flex-wrap gap-1.5 pt-0.5">
+                         {gen.hashtags.map((h: string) => (
+                           <span key={h} className="text-[10px] bg-red-50 text-red-500 px-2 py-0.5 rounded font-medium">
+                             #{h}
+                           </span>
+                         ))}
+                       </div>
+                     )}
                      
                      {gen.mediaUrl && (
                        <div className="overflow-hidden rounded-xl border border-slate-100 aspect-video bg-slate-50 shrink-0">

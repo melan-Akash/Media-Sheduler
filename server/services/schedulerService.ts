@@ -33,7 +33,7 @@ export const initScheduler = () => {
 
           // Map local accounts to Zero API platform structure
           const zeroPlatforms = accounts.map((acc: any) => ({
-            platform: acc.platform as any,
+            platform: acc.platform.toLowerCase().replace(/\s+page|\s+business/g, '') as any,
             accountId: acc.zeroAccountId!
           }));
 
