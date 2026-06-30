@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Mail, SendHorizonal, Check, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 import img1 from '../../assets/img-1.jpg'
 import img2 from '../../assets/img-2.jpg'
@@ -25,6 +25,14 @@ export default function Hero() {
     const prevSlide = () => {
         setActiveIndex((prev) => (prev - 1 + slides.length) % slides.length)
     }
+
+    // Auto-play slider every 4 seconds
+    useEffect(() => {
+        const interval = setInterval(() => {
+            nextSlide()
+        }, 4000)
+        return () => clearInterval(interval)
+    }, [activeIndex]) // Reset interval on manual slide change to prevent rapid double-slides
 
     return (
         <section className="relative overflow-hidden bg-white">
@@ -114,10 +122,13 @@ export default function Hero() {
                             
                             {/* Header: Actions */}
                             <div className="flex items-center justify-end mb-6">
-                                <button className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm">
+                                <Link 
+                                    to="/ai-composer" 
+                                    className="flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-sm"
+                                >
                                     <Plus className="size-3.5" />
-                                    <span>Add music</span>
-                                </button>
+                                    <span>Try AI Composer</span>
+                                </Link>
                             </div>
 
                             {/* Left/Right Slider Buttons */}
@@ -138,18 +149,18 @@ export default function Hero() {
                             </button>
 
                             {/* Cards Track */}
-                            <div className="overflow-hidden w-full px-4 md:px-8 py-2">
+                            <div className="overflow-hidden w-full px-4 md:px-6 py-2">
                                 <div 
-                                    className="flex gap-4 md:gap-6 transition-transform duration-500 ease-out"
-                                    style={{ transform: `translateX(-${activeIndex * 220}px)` }}
+                                    className="flex gap-5 transition-transform duration-500 ease-out"
+                                    style={{ transform: `translateX(-${activeIndex * 270}px)` }}
                                 >
                                     {slides.map((slide, idx) => {
-                                        const isVisible = idx >= activeIndex && idx < activeIndex + 3;
+                                        const isLeft = idx < activeIndex;
                                         return (
                                             <div 
                                                 key={idx} 
-                                                className={`w-[200px] shrink-0 bg-white border border-slate-100 rounded-2xl p-2 shadow-xs transition-all duration-350 ${
-                                                    isVisible ? 'opacity-100 scale-100' : 'opacity-20 scale-95 pointer-events-none'
+                                                className={`w-[250px] shrink-0 bg-white border border-slate-100 rounded-2xl p-2.5 shadow-xs transition-all duration-350 ${
+                                                    isLeft ? 'opacity-25 scale-95' : 'opacity-100 scale-100'
                                                 }`}
                                             >
                                                 <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-slate-50">
@@ -159,9 +170,9 @@ export default function Hero() {
                                                         className="w-full h-full object-cover"
                                                     />
                                                 </div>
-                                                <div className="pt-3 pb-1 px-1.5">
-                                                    <h4 className="text-xs font-bold text-slate-800 truncate">{slide.title}</h4>
-                                                    <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">{slide.author}</p>
+                                                <div className="pt-3.5 pb-1 px-1.5">
+                                                    <h4 className="text-sm font-bold text-slate-850 truncate">{slide.title}</h4>
+                                                    <p className="text-xs text-slate-400 font-medium truncate mt-0.5">{slide.author}</p>
                                                 </div>
                                             </div>
                                         )
