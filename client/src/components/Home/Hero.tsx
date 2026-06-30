@@ -1,91 +1,110 @@
-import { Link } from "react-router-dom";
-import { ArrowRightIcon, DotIcon } from "lucide-react";
+import { Link } from 'react-router-dom'
+import { ArrowRight, Mail, SendHorizonal, Check } from 'lucide-react'
 
 export default function Hero() {
     return (
-        <section className="relative overflow-hidden">
-            {/* Subtle grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] bg-size-[56px_56px] pointer-events-none" />
+        <section className="relative overflow-hidden bg-white">
+            {/* Subtle Grid Background */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none" />
 
-            {/* Red soft glow */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[560px] bg-[radial-gradient(ellipse_at_center,rgba(239,68,68,0.08)_0%,transparent_70%)] pointer-events-none" />
+            {/* Soft Red Brand Glow */}
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.04)_0%,transparent_75%)] pointer-events-none" />
 
-            <div className="relative max-w-6xl mx-auto px-5 sm:px-8 pt-20 pb-12 text-center">
-                {/* Badge */}
-                <div className="inline-flex items-center gap-2 bg-red-50 border border-red-100 text-red-500 text-sm px-3.5 py-1.5 rounded-full mb-8">
-                    <span className="size-1.5 bg-red-400 rounded-full" />
-                    AI-Powered Social Media Automation
-                </div>
+            <div className="relative mx-auto max-w-6xl px-6 py-24 lg:py-32">
+                <div className="lg:flex lg:items-center lg:gap-12">
+                    {/* Content Column (Left) */}
+                    <div className="relative z-10 mx-auto max-w-xl text-center lg:ml-0 lg:w-1/2 lg:text-left">
+                        {/* New Feature Badge */}
+                        <Link
+                            to="/login"
+                            className="rounded-full mx-auto flex w-fit items-center gap-2 border border-red-100 bg-red-50/50 p-1.5 pr-4.5 lg:ml-0 hover:bg-red-50 transition-colors">
+                            <span className="bg-red-500 text-white rounded-full px-2.5 py-0.5 text-xs font-bold font-sans">New</span>
+                            <span className="text-xs font-semibold text-red-600">Introduction Tailark Html</span>
+                            <span className="bg-red-200 block h-3 w-px"></span>
+                            <ArrowRight className="size-3 text-red-500" />
+                        </Link>
 
-                {/* Headline */}
-                <h1 className="font-serif text-5xl sm:text-6xl md:text-7xl xl:text-8xl text-slate-900">
-                    Schedule smarter.
-                    <br />
-                    <span className="text-red-400 italic">Grow faster.</span>
-                </h1>
+                        {/* Title */}
+                        <h1 className="mt-8 text-balance text-4xl font-bold md:text-5xl xl:text-6xl font-serif text-slate-900 leading-tight">
+                            Production Ready Digital Marketing blocks
+                        </h1>
+                        
+                        {/* Subtitle */}
+                        <p className="mt-6 text-slate-500 text-base leading-relaxed">
+                            Error totam sit illum. Voluptas doloribus asperiores quaerat aperiam. Quidem harum omnis beatae ipsum soluta!
+                        </p>
 
-                {/* Subheadline */}
-                <p className="mt-7 text-gray-500 max-w-2xl mx-auto">Scheduler lets you create, schedule, and auto-engage across all your social platforms — powered by AI that writes your captions and replies for you.</p>
+                        <div>
+                            {/* Email Signup Form */}
+                            <form
+                                onSubmit={(e) => e.preventDefault()}
+                                className="mx-auto my-8 max-w-sm lg:my-10 lg:ml-0 lg:mr-auto">
+                                <div className="bg-white relative grid grid-cols-[1fr_auto] items-center rounded-2xl border border-slate-200 p-1.5 shadow-sm transition-all focus-within:ring-2 focus-within:ring-red-100 focus-within:border-red-400">
+                                    <Mail className="text-slate-400 pointer-events-none absolute inset-y-0 left-5 my-auto size-5" />
 
-                {/* CTAs */}
-                <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
-                    <Link to="/login" className="bg-red-500 text-white rounded-full font-medium hover:bg-red-600 hover:shadow-[0_8px_24px_rgba(239,68,68,0.35)] inline-flex items-center gap-2 text-[15px] px-8 py-3.5 w-full sm:w-auto justify-center transition-all">
-                        Start for free <ArrowRightIcon className="size-4" />
-                    </Link>
-                    <a href="#how-it-works" className="bg-transparent text-[#333] border-[1.5px] border-black/10 rounded-full font-medium hover:bg-black/5 hover:border-black/20 inline-flex items-center gap-2 text-[15px] px-8 py-3.5 w-full sm:w-auto backdrop-blur justify-center transition-all">
-                        See how it works
-                    </a>
-                </div>
+                                    <input
+                                        placeholder="Your mail address"
+                                        className="h-12 w-full bg-transparent pl-12 pr-4 text-sm text-slate-800 focus:outline-none placeholder-slate-400"
+                                        type="email"
+                                        required
+                                    />
 
-                <p className="mt-5 text-xs text-gray-400">No credit card required · Free forever plan available</p>
-            </div>
+                                    <div>
+                                        <button
+                                            type="submit"
+                                            className="flex items-center justify-center h-10 px-5 rounded-xl text-sm font-medium bg-red-500 text-white hover:bg-red-600 active:scale-98 shadow-sm transition-all"
+                                            aria-label="submit"
+                                        >
+                                            <span className="hidden md:block">Get Started</span>
+                                            <SendHorizonal
+                                                className="relative mx-auto size-4.5 md:hidden"
+                                                strokeWidth={2}
+                                            />
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
 
-            {/* Dashboard mockup */}
-            <div className="relative max-w-5xl mx-auto px-5 sm:px-8 pb-0">
-                <div className="rounded-t-2xl overflow-hidden border border-gray-200 border-b-0">
-                    {/* Browser chrome */}
-                    <div className="flex items-center gap-2 px-4 py-3" style={{ background: "#f0f0f0", borderBottom: "1px solid rgba(0,0,0,0.06)" }}>
-                        <div className="w-3 h-3 rounded-full bg-red-400" />
-                        <div className="w-3 h-3 rounded-full bg-amber-400" />
-                        <div className="w-3 h-3 rounded-full bg-emerald-400" />
-                        <div className="flex-1 mx-4 rounded-md h-5 max-w-xs bg-white/80" />
+                            {/* Features List */}
+                            <ul className="space-y-3 text-left w-fit mx-auto lg:ml-0">
+                                {[
+                                    'Faster',
+                                    'Modern',
+                                    '100% Customizable'
+                                ].map((feat) => (
+                                    <li key={feat} className="flex items-center gap-2.5 text-sm font-semibold text-slate-700">
+                                        <span className="size-5 bg-red-50 text-red-500 rounded-full flex items-center justify-center shrink-0">
+                                            <Check className="size-3" strokeWidth={3} />
+                                        </span>
+                                        <span>{feat}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
+                </div>
 
-                    {/* Mock content */}
-                    <div className="p-6" style={{ background: "#f7f7f7" }}>
-                        {/* Stat row */}
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                            {[
-                                { val: "12", label: "Scheduled" },
-                                { val: "48", label: "Published" },
-                                { val: "4", label: "Accounts" },
-                                { val: "3", label: "AI Rules" },
-                            ].map((s) => (
-                                <div key={s.label} className="rounded-xl p-4 bg-white" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
-                                    <div className="text-2xl font-bold text-gray-900 tabular-nums">{s.val}</div>
-                                    <div className="text-xs text-gray-400 mt-1">{s.label}</div>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Activity list */}
-                        <div className="rounded-xl p-4 space-y-3 bg-white" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
-                            <div className="text-[10px] font-semibold text-gray-400 uppercase tracking-widest mb-3">Recent Activity</div>
-                            {[
-                                { text: "Post published to LinkedIn & Twitter", time: "2m ago" },
-                                { text: "AI replied to 3 comments", time: "15m ago" },
-                                { text: "New post scheduled for tomorrow 9am", time: "1h ago" },
-                            ].map((item) => (
-                                <div key={item.text} className="flex items-center gap-3">
-                                    <DotIcon className="size-5 text-gray-300" />
-                                    <span className="text-sm text-gray-600 flex-1">{item.text}</span>
-                                    <span className="text-xs text-gray-300 shrink-0">{item.time}</span>
-                                </div>
-                            ))}
-                        </div>
+                {/* Illustration Image (Right/Overlay) */}
+                <div className="absolute inset-y-0 right-0 left-auto w-full lg:w-1/2 pointer-events-none z-0 hidden lg:block">
+                    <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 to-transparent z-10 w-48" />
+                    <div className="relative h-full flex items-center justify-end p-6">
+                        <img
+                            className="hidden dark:block object-contain max-h-[85%] rounded-2xl shadow-2xl"
+                            src="https://tailark.com/_next/image?url=%2Fmusic.png&w=3840&q=75"
+                            alt="app illustration"
+                            width={2796}
+                            height={2008}
+                        />
+                        <img
+                            className="dark:hidden object-contain max-h-[85%] rounded-2xl shadow-xl border border-slate-100"
+                            src="https://tailark.com/_next/image?url=%2Fmusic-light.png&w=3840&q=75"
+                            alt="app illustration"
+                            width={2796}
+                            height={2008}
+                        />
                     </div>
                 </div>
             </div>
         </section>
-    );
+    )
 }
