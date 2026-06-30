@@ -5,6 +5,8 @@ interface User {
   _id: string;
   name: string;
   email: string;
+  subscriptionPlan?: 'free' | 'pro' | 'agency';
+  subscriptionStatus?: string;
 }
 
 interface AppContextType {
@@ -16,6 +18,7 @@ interface AppContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUser: (user: User | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -95,6 +98,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     delete api.defaults.headers.common['Authorization'];
   };
 
+  const updateUser = (newUser: User | null) => {
+    if (newUser) {
+      localStorage.setItem('user', JSON.stringify(newUser));
+    } else {
+      localStorage.removeItem('user');
+    }
+    setUser(newUser);
+  };
+
   const isAuthenticated = !!token;
 
   return (
@@ -108,6 +120,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

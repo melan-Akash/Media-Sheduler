@@ -15,7 +15,33 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [chartMetric, setChartMetric] = useState<'likes' | 'comments' | 'shares'>('likes');
   const [currentTime, setCurrentTime] = useState(new Date());
-  const { api, user } = useApp();
+  const [verifyingPayment, setVerifyingPayment] = useState(false);
+  const { api, user, updateUser } = useApp();
+
+  useEffect(() => {
+    const verifyStripeSession = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session_id');
+      
+      if (sessionId) {
+        setVerifyingPayment(true);
+        try {
+          const res = await api.post('/payment/verify-session', { sessionId });
+          if (res.data?.success && res.data?.user) {
+            updateUser(res.data.user);
+            // Clear query params
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        } catch (error) {
+          console.error('Failed to verify payment session:', error);
+        } finally {
+          setVerifyingPayment(false);
+        }
+      }
+    };
+
+    verifyStripeSession();
+  }, [api, updateUser]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -125,10 +151,11 @@ export default function Dashboard() {
     }
   ];
 
-  if (loading) {
+  if (loading || verifyingPayment) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div>
+        {verifyingPayment && <p className="text-sm font-semibold text-slate-500">Verifying your subscription...</p>}
       </div>
     );
   }
@@ -138,9 +165,21 @@ export default function Dashboard() {
       {/* Welcome & Quick Actions Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="space-y-1.5">
-          <h2 className="text-3xl font-semibold text-slate-850">
-            {greeting.text}, {user?.name || 'User'}! {greeting.icon}
-          </h2>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h2 className="text-3xl font-semibold text-slate-850">
+              {greeting.text}, {user?.name || 'User'}! {greeting.icon}
+            </h2>
+            {user?.subscriptionPlan && user.subscriptionPlan !== 'free' ? (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 border border-emerald-100 capitalize">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                {user.subscriptionPlan} Plan
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 capitalize">
+                Free Plan
+              </span>
+            )}
+          </div>
           <p className="text-sm font-medium text-slate-505 flex items-center gap-2 flex-wrap">
             <span>{formattedDate}</span>
             <span className="text-slate-300 hidden sm:inline">•</span>
@@ -164,6 +203,25 @@ export default function Dashboard() {
           </a>
         </div>
       </div>
+
+      {/* Upgrade Banner for Free Users */}
+      {(!user?.subscriptionPlan || user.subscriptionPlan === 'free') && (
+        <div className="relative overflow-hidden bg-gradient-to-r from-red-500 to-red-650 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+          <div className="space-y-1 relative z-10">
+            <h3 className="font-bold text-lg">Upgrade to Pro & Unlock Full Power! 🚀</h3>
+            <p className="text-sm text-red-100 max-w-xl">
+              Get unlimited social accounts, unlimited scheduling, priority support, and 200 AI composition credits every month for just $10.
+            </p>
+          </div>
+          <a 
+            href="/#pricing" 
+            className="relative z-10 px-5 py-2.5 bg-white text-red-600 font-bold text-sm rounded-xl hover:bg-red-50 transition-all text-center shrink-0 shadow-sm"
+          >
+            Upgrade Now
+          </a>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

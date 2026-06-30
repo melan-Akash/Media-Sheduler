@@ -1,5 +1,7 @@
 import { CheckIcon, CircleCheckBigIcon } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useApp } from "../../context/appcontext";
+import { useState } from "react";
 
 const pricingPlans = [
     {
@@ -13,7 +15,7 @@ const pricingPlans = [
     },
     {
         name: "Pro",
-        price: "$29",
+        price: "$10",
         period: "/month",
         description: "Everything you need to grow and automate your social presence.",
         features: ["Unlimited accounts", "Unlimited scheduling", "AI content (200 credits/mo)", "Priority support"],
@@ -22,7 +24,7 @@ const pricingPlans = [
     },
     {
         name: "Agency",
-        price: "$79",
+        price: "$20",
         period: "/month",
         description: "For teams and agencies managing multiple brands at scale.",
         features: ["Everything in Pro", "5 team members", "Unlimited AI credits", "Custom AI personas", "Dedicated support"],
@@ -32,6 +34,38 @@ const pricingPlans = [
 ];
 
 export default function Pricing() {
+    const { user, api } = useApp();
+    const navigate = useNavigate();
+    const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+
+    const handleCheckout = async (planName: string) => {
+        const planKey = planName.toLowerCase();
+        if (planKey === 'starter') {
+            navigate('/login');
+            return;
+        }
+
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        try {
+            setLoadingPlan(planName);
+            const response = await api.post('/payment/create-checkout-session', { plan: planKey });
+            if (response.data?.url) {
+                window.location.href = response.data.url;
+            } else {
+                alert('Failed to start payment. Please try again.');
+            }
+        } catch (error: any) {
+            console.error('Checkout error:', error);
+            alert(error.response?.data?.message || 'Failed to connect to payment server.');
+        } finally {
+            setLoadingPlan(null);
+        }
+    };
+
     return (
         <section id="pricing" className="py-24 bg-white">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -72,9 +106,23 @@ export default function Pricing() {
                                 ))}
                             </ul>
 
-                            <Link to="/#" className={`mt-auto text-center font-semibold text-sm px-6 py-3 rounded-full ${plan.highlight ? "bg-white text-red-500 hover:bg-red-50" : "bg-red-500 text-white hover:bg-red-600"}`}>
-                                {plan.cta}
-                            </Link>
+                            {plan.price === "Free" ? (
+                                <Link to="/login" className={`mt-auto text-center font-semibold text-sm px-6 py-3 rounded-full ${plan.highlight ? "bg-white text-red-500 hover:bg-red-50" : "bg-red-500 text-white hover:bg-red-600"}`}>
+                                    {plan.cta}
+                                </Link>
+                            ) : (
+                                <button 
+                                    onClick={() => handleCheckout(plan.name)}
+                                    disabled={loadingPlan !== null}
+                                    className={`mt-auto text-center font-semibold text-sm px-6 py-3 rounded-full cursor-pointer transition-all ${
+                                        plan.highlight 
+                                            ? "bg-white text-red-500 hover:bg-red-50" 
+                                            : "bg-red-500 text-white hover:bg-red-600"
+                                    } ${loadingPlan === plan.name ? "opacity-70 cursor-wait" : ""}`}
+                                >
+                                    {loadingPlan === plan.name ? "Connecting..." : plan.cta}
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>

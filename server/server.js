@@ -10,6 +10,7 @@ import socialAuthRouter from './routes/socialAuthRoutes.js';
 import accountRouter from './routes/accountRoutes.js';
 import postRouter from './routes/postRoutes.js';
 import activityRouter from './routes/activityRoutes.js';
+import paymentRouter from './routes/paymentRoutes.js';
 const app = express();
 // Global Middlewares
 app.use(cors());
@@ -28,6 +29,7 @@ app.use('/api/auth', socialAuthRouter);
 app.use('/api/accounts', accountRouter);
 app.use('/api/posts', postRouter);
 app.use('/api/activity', activityRouter);
+app.use('/api/payment', paymentRouter);
 // Initialize background scheduler
 initScheduler();
 // Global Error Handler

@@ -3,14 +3,22 @@ export declare const User: mongoose.Model<{
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {}, {}, {
     id: string;
 }, mongoose.Document<unknown, {}, {
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, {
@@ -19,7 +27,11 @@ export declare const User: mongoose.Model<{
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -32,12 +44,20 @@ export declare const User: mongoose.Model<{
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, mongoose.Document<unknown, {}, {
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
 } & mongoose.DefaultTimestampProps, {
     id: string;
 }, Omit<mongoose.DefaultSchemaOptions, "timestamps"> & {
@@ -46,7 +66,11 @@ export declare const User: mongoose.Model<{
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
 } & mongoose.DefaultTimestampProps & {
     _id: mongoose.Types.ObjectId;
 } & {
@@ -57,7 +81,11 @@ export declare const User: mongoose.Model<{
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {
@@ -68,7 +96,11 @@ export declare const User: mongoose.Model<{
     name: string;
     email: string;
     password: string;
+    subscriptionPlan: "free" | "pro" | "agency";
+    subscriptionStatus: "active" | "inactive" | "trialing" | "past_due" | "canceled";
     zeroProfileId?: string | null | undefined;
+    stripeCustomerId?: string | null | undefined;
+    stripeSubscriptionId?: string | null | undefined;
     createdAt: NativeDate;
     updatedAt: NativeDate;
 } & {
