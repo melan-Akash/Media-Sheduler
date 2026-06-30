@@ -128,7 +128,7 @@ export default function AIComposer() {
       {/* Input Section */}
       <div className="flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
         <h1 className="text-3xl font-semibold text-slate-800">What should we create today?</h1>
-        <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 focus-within:border-slate-300 shadow-xs transition-all relative">
+        <div id="tour-composer-input" className="w-full bg-white border border-slate-200 rounded-2xl p-4 focus-within:border-slate-300 shadow-xs transition-all relative">
           <textarea 
             placeholder="Share your idea... (e.g. A post about the launch of our new eco-friendly coffee beans)"
             value={prompt}

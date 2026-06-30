@@ -8,6 +8,7 @@ import AIComposer from "./pages/AI composer";
 import Layout from "./components/layout";
 import { useApp } from "./context/appcontext";
 import { Toaster } from "react-hot-toast";
+import { TourProvider } from "./context/tourcontext";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, loading } = useApp();
@@ -26,7 +27,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
     return (
-        <>
+        <TourProvider>
             <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             <Routes>
                 <Route path="/" element={<Home />} />
@@ -38,6 +39,6 @@ export default function App() {
                     <Route path="/ai-composer" element={<AIComposer />} />
                 </Route>
             </Routes>
-        </>
+        </TourProvider>
     );
 }

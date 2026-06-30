@@ -154,7 +154,7 @@ export default function Accounts() {
       {/* Available Platforms (Cards Grid) */}
       <div className="space-y-4">
         <h3 className="text-sm font-bold text-slate-800">Available Platforms</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="tour-platform-cards" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {platforms.map((platform) => {
             const isConnected = connectedIds.includes(platform.id);
             const isConnecting = connecting === platform.id;

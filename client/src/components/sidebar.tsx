@@ -39,6 +39,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
             <NavLink 
               key={item.name} 
               to={item.path} 
+              id={item.name === 'Accounts' ? 'tour-nav-accounts' : item.name === 'Scheduler' ? 'tour-nav-scheduler' : item.name === 'AI Composer' ? 'tour-nav-composer' : undefined}
               end={item.path === '/dashboard'}
               onClick={() => setIsOpen(false)}
               className={`flex items-center justify-between px-4 py-3 text-sm font-medium rounded-xl transition-all ${isActive ? 'bg-red-50/50 text-red-500' : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'}`}

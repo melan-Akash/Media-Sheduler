@@ -165,7 +165,7 @@ export default function Dashboard() {
       {/* Welcome & Quick Actions Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="space-y-1.5">
-          <div className="flex items-center gap-3 flex-wrap">
+          <div id="tour-welcome" className="flex items-center gap-3 flex-wrap">
             <h2 className="text-3xl font-semibold text-slate-850">
               {greeting.text}, {user?.name || 'User'}! {greeting.icon}
             </h2>
@@ -224,7 +224,7 @@ export default function Dashboard() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div id="tour-stats" className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { label: 'Scheduled Posts', value: stats.scheduled, icon: ClockIcon, trend: 'Active' },
           { label: 'Published Posts', value: stats.published, icon: CheckCircleIcon, trend: 'All time' },
@@ -249,7 +249,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Post Performance Analytics Card */}
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs space-y-6">
+          <div id="tour-analytics" className="bg-white p-6 rounded-2xl border border-slate-100 shadow-xs space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h3 className="text-sm font-bold text-slate-800">Post Performance</h3>

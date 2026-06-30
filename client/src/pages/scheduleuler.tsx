@@ -396,7 +396,7 @@ export default function Scheduler() {
         </div>
 
         {/* Upcoming Posts */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6">
+        <div id="tour-scheduler-calendar" className="bg-white rounded-2xl border border-slate-100 shadow-xs p-6">
            <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
               <div className="flex items-center gap-2 text-slate-800 font-semibold">
                 <CalendarDaysIcon className="size-5 text-slate-500" />

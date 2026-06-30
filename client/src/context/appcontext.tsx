@@ -79,6 +79,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       localStorage.setItem('token', userToken);
       localStorage.setItem('user', JSON.stringify(userDetails));
+      localStorage.setItem('showTour', 'true');
 
       setToken(userToken);
       setUser(userDetails);
