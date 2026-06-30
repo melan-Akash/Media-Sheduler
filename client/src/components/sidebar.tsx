@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import { LayoutDashboardIcon, UserIcon, CalendarDaysIcon, SparklesIcon, LogOutIcon } from 'lucide-react';
 
 const navItems = [
@@ -19,10 +19,10 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
       
       {/* Logo */}
       <div className="p-6">
-        <div className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity cursor-pointer">
           <img src="/logo.svg" alt="logo" className="size-6 text-red-500" />
           <span className="text-xl font-bold text-slate-800 font-sans">Media Scheduler</span>
-        </div>
+        </Link>
       </div>
 
       {/* Nav Section Label */}
