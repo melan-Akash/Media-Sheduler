@@ -21,7 +21,7 @@ export default function Sidebar({ isOpen, setIsOpen }: { isOpen: boolean, setIsO
       <div className="p-6">
         <div className="flex items-center gap-2.5">
           <img src="/logo.svg" alt="logo" className="size-6 text-red-500" />
-          <span className="text-xl font-bold text-slate-800 font-sans">Scheduler</span>
+          <span className="text-xl font-bold text-slate-800 font-sans">Media Scheduler</span>
         </div>
       </div>
 

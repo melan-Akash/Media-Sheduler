@@ -93,31 +93,21 @@ const Logo = () => {
     return (
         <div className="flex items-center gap-2.5">
             <svg
-                viewBox="0 0 18 18"
+                viewBox="0 10 62 62"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                className="size-5.5 shrink-0">
+                className="size-6 shrink-0">
                 <path
-                    d="M3 0H5V18H3V0ZM13 0H15V18H13V0ZM18 3V5H0V3H18ZM0 15V13H18V15H0Z"
-                    fill="url(#logo-gradient)"
+                    d="M47.06 10H14.94C6.689 10 0 16.689 0 24.94v32.12C0 65.311 6.689 72 14.94 72h32.12C55.311 72 62 65.311 62 57.06V24.94C62 16.689 55.311 10 47.06 10"
+                    fill="#EF4444"
                 />
-                <defs>
-                    <linearGradient
-                        id="logo-gradient"
-                        x1="9"
-                        y1="0"
-                        x2="9"
-                        y2="18"
-                        gradientUnits="userSpaceOnUse">
-                        <stop stopColor="#EF4444" />
-                        <stop
-                            offset="1"
-                            stopColor="#F87171"
-                        />
-                    </linearGradient>
-                </defs>
+                <path
+                    d="M33 57c8.836 0 16-7.163 16-16s-7.164-16-16-16 0 7.163 0 16-8.837 16 0 16"
+                    fill="#fff"
+                />
+                <circle cx="21" cy="41" r="7" fill="#fff" />
             </svg>
-            <span className="text-lg font-bold text-slate-800 tracking-tight font-sans">
+            <span className="text-lg font-bold text-slate-850 tracking-tight font-sans">
                 Media Scheduler
             </span>
         </div>
