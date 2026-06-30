@@ -6,4 +6,5 @@ export declare const getPosts: (req: AuthRequest, res: Response) => Promise<void
 export declare const schedulePost: (req: AuthRequest, res: Response) => Promise<void>;
 export declare const deletePost: (req: AuthRequest, res: Response) => Promise<void>;
 export declare const deleteGeneration: (req: AuthRequest, res: Response) => Promise<void>;
+export declare const triggerCronPublish: (req: any, res: Response) => Promise<void>;
 //# sourceMappingURL=postController.d.ts.map

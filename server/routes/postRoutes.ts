@@ -1,10 +1,11 @@
 import express from 'express';
-import { getPosts, getGenerations, schedulePost, generatePost, deletePost, deleteGeneration } from '../controllers/postController.js';
+import { getPosts, getGenerations, schedulePost, generatePost, deletePost, deleteGeneration, triggerCronPublish } from '../controllers/postController.js';
 import { protect } from '../middlewares/authMiddleware.js';
 import { upload } from '../config/multer.js';
 
 const postRouter = express.Router();
 
+postRouter.get('/cron-trigger', triggerCronPublish);
 postRouter.get('/', protect, getPosts);
 postRouter.get('/generations', protect, getGenerations);
 postRouter.post('/', protect, upload.single('media'), schedulePost);

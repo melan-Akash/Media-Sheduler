@@ -4,6 +4,7 @@ import cloudinary from '../config/cloudinary.js';
 import { Generation } from '../models/generation.js';
 import { Post } from '../models/post.js';
 import { sendPostScheduledEmail } from '../services/emailService.js';
+import { publishScheduledPosts } from '../services/schedulerService.js';
 // POST /api/posts/generate
 export const generatePost = async (req, res) => {
     try {
@@ -210,6 +211,21 @@ export const deleteGeneration = async (req, res) => {
     }
     catch (error) {
         res.status(500).json({ message: error.message || 'Server error' });
+    }
+};
+// GET /api/posts/cron-trigger
+export const triggerCronPublish = async (req, res) => {
+    const cronSecret = req.headers['x-cron-secret'] || req.query.cron_secret;
+    if (process.env.CRON_SECRET && cronSecret !== process.env.CRON_SECRET) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return;
+    }
+    try {
+        await publishScheduledPosts();
+        res.json({ success: true, message: 'Cron executed successfully' });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message || 'Cron execution failed' });
     }
 };
 //# sourceMappingURL=postController.js.map
